@@ -29,17 +29,20 @@ class IndexView(TemplateView):
     template_name = 'repo_index.html'
 
     def list_repos(self, root, level):
-        for file in os.listdir(root):
-            path = os.path.join(root, file)
-            if not os.path.isdir(path):
-                continue
-            if path.endswith('.git'):
-                yield path
-            elif os.path.exists(os.path.join(path, '.git')):
-                yield os.path.join(path, '.git')
-            elif level > 0:
-                for path in self.list_repos(path, level-1):
+        try:
+            for file in os.listdir(root):
+                path = os.path.join(root, file)
+                if not os.path.isdir(path):
+                    continue
+                if path.endswith('.git'):
                     yield path
+                elif os.path.exists(os.path.join(path, '.git')):
+                    yield os.path.join(path, '.git')
+                elif level > 0:
+                    for path in self.list_repos(path, level-1):
+                        yield path
+        except:
+            pass
 
     def dispatch_request(self):
         root = current_app.config['REPO_ROOT']
